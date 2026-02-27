@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KitabEvi — Sehrli Dünya</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #1a1025;
+            --cream: #fdf8f0;
+            --gold: #f0a500;
+            --coral: #ff6b6b;
+            --teal: #00b8a9;
+            --lavender: #c77dff;
+            --rose: #ff85a1;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            width: 14px; height: 14px;
+            background: var(--coral);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s ease, background 0.3s;
+            mix-blend-mode: multiply;
+        }
+        .cursor-ring {
+            width: 40px; height: 40px;
+            border: 2px solid var(--ink);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: all 0.15s ease;
+        }
+
+        /* Noise Overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9997;
+            opacity: 0.4;
+        }
+
+        /* NAV */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 248, 240, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(26,16,37,0.08);
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--ink);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+        .logo span { color: var(--coral); }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--ink);
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.03em;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .nav-links a:hover { opacity: 1; }
+
+        .nav-actions { display: flex; gap: 1rem; align-items: center; }
+
+        .btn-nav {
+            padding: 0.55rem 1.4rem;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-outline {
+            border: 1.5px solid var(--ink);
+            background: transparent;
+            color: var(--ink);
+        }
+        .btn-outline:hover { background: var(--ink); color: var(--cream); }
+        .btn-filled {
+            background: var(--coral);
+            border: 1.5px solid var(--coral);
+            color: #fff;
+        }
+        .btn-filled:hover { background: #e85555; border-color: #e85555; }
+
+        /* HERO */
+        .hero {
+            min-height: 92vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            padding: 4rem 5%;
+            gap: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.25;
+            pointer-events: none;
+        }
+        .blob1 { width: 500px; height: 500px; background: var(--lavender); top: -100px; right: -100px; animation: blobFloat 8s ease-in-out infinite; }
+        .blob2 { width: 350px; height: 350px; background: var(--gold); bottom: -50px; left: 30%; animation: blobFloat 10s ease-in-out infinite reverse; }
+        .blob3 { width: 250px; height: 250px; background: var(--teal); top: 40%; left: -50px; animation: blobFloat 12s ease-in-out infinite; }
+
+        @keyframes blobFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(20px, -20px) scale(1.05); }
+            66% { transform: translate(-15px, 15px) scale(0.95); }
+        }
+
+        .hero-text { position: relative; z-index: 2; }
+
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--gold);
+            color: var(--ink);
+            padding: 0.35rem 1rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            animation: fadeUp 0.6s ease both;
+        }
+        .hero-tag::before { content: '✦'; }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 5.5vw, 5.5rem);
+            font-weight: 900;
+            line-height: 1.05;
+            letter-spacing: -2px;
+            margin-bottom: 1.5rem;
+            animation: fadeUp 0.6s 0.1s ease both;
+        }
+        h1 em {
+            font-style: italic;
+            color: var(--coral);
+            position: relative;
+        }
+        h1 em::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 0; right: 0;
+            height: 4px;
+            background: var(--gold);
+            border-radius: 2px;
+        }
+
+        .hero-desc {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            opacity: 0.65;
+            max-width: 440px;
+            margin-bottom: 2.5rem;
+            animation: fadeUp 0.6s 0.2s ease both;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            animation: fadeUp 0.6s 0.3s ease both;
+        }
+
+        .btn-big {
+            padding: 0.9rem 2rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 100px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-primary {
+            background: var(--ink);
+            color: var(--cream);
+            border: 2px solid var(--ink);
+        }
+        .btn-primary:hover { background: var(--coral); border-color: var(--coral); transform: translateY(-2px); }
+        .btn-secondary-big {
+            background: transparent;
+            color: var(--ink);
+            border: 2px solid rgba(26,16,37,0.2);
+        }
+        .btn-secondary-big:hover { border-color: var(--ink); transform: translateY(-2px); }
+
+        .hero-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 3rem;
+            animation: fadeUp 0.6s 0.4s ease both;
+        }
+        .stat { }
+        .stat-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--ink);
+        }
+        .stat-label { font-size: 0.8rem; opacity: 0.5; }
+
+        /* Hero Visual */
+        .hero-visual {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeUp 0.7s 0.2s ease both;
+        }
+
+        .books-stack {
+            position: relative;
+            width: 380px;
+            height: 420px;
+        }
+
+        .book-card {
+            position: absolute;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1.5rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            transition: transform 0.4s ease;
+        }
+        .book-card:hover { transform: scale(1.04) rotate(0deg) !important; z-index: 10; }
+
+        .book1 {
+            width: 200px; height: 280px;
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            top: 20px; left: 20px;
+            transform: rotate(-6deg);
+        }
+        .book2 {
+            width: 200px; height: 260px;
+            background: linear-gradient(135deg, #00b8a9, #7ed8d0);
+            top: 40px; right: 20px;
+            transform: rotate(5deg);
+        }
+        .book3 {
+            width: 220px; height: 300px;
+            background: linear-gradient(135deg, #c77dff, #9d4edd);
+            bottom: 0px; left: 80px;
+            transform: rotate(-2deg);
+            z-index: 5;
+        }
+
+        .book-title-mock {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.95);
+            line-height: 1.3;
+        }
+        .book-author-mock {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.7);
+            margin-top: 0.3rem;
+        }
+        .book-price-mock {
+            display: inline-block;
+            background: rgba(255,255,255,0.25);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            padding: 0.2rem 0.7rem;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .floating-badge {
+            position: absolute;
+            background: var(--cream);
+            border-radius: 12px;
+            padding: 0.7rem 1rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: floatY 3s ease-in-out infinite;
+        }
+        .badge1 { top: 0; right: 0; animation-delay: 0s; }
+        .badge2 { bottom: 60px; right: -20px; animation-delay: 1.5s; }
+
+        @keyframes floatY {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* SECTION COMMON */
+        section { padding: 6rem 5%; }
+
+        .section-tag {
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--coral);
+            margin-bottom: 0.8rem;
+        }
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 3.5vw, 3rem);
+            font-weight: 900;
+            letter-spacing: -1px;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+        }
+        .section-subtitle {
+            font-size: 1rem;
+            opacity: 0.55;
+            max-width: 500px;
+            line-height: 1.7;
+        }
+
+        /* FEATURED BOOKS */
+        .featured { background: var(--ink); color: var(--cream); border-radius: 32px; margin: 0 3%; }
+
+        .featured-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 3rem;
+        }
+        .featured .section-tag { color: var(--gold); }
+        .featured .section-title { color: var(--cream); }
+
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+        }
+
+        .book-item {
+            border-radius: 16px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: transform 0.3s ease, border-color 0.3s;
+            cursor: pointer;
+        }
+        .book-item:hover { transform: translateY(-6px); border-color: rgba(255,255,255,0.2); }
+
+        .book-cover {
+            height: 200px;
+            display: flex;
+            align-items: flex-end;
+            padding: 1.2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .book-cover::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.5), transparent 60%);
+        }
+        .cover1 { background: linear-gradient(135deg, #ff6b6b 0%, #ffa07a 100%); }
+        .cover2 { background: linear-gradient(135deg, #00b8a9 0%, #007bff 100%); }
+        .cover3 { background: linear-gradient(135deg, #c77dff 0%, #e040fb 100%); }
+        .cover4 { background: linear-gradient(135deg, #f0a500 0%, #ff6b6b 100%); }
+
+        .cover-icon {
+            font-size: 3.5rem;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -60%);
+            opacity: 0.3;
+        }
+
+        .book-cover-badge {
+            position: relative;
+            z-index: 2;
+            background: var(--gold);
+            color: var(--ink);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: 100px;
+        }
+
+        .book-info { padding: 1.2rem; }
+        .book-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--cream);
+            margin-bottom: 0.3rem;
+            line-height: 1.3;
+        }
+        .book-author {
+            font-size: 0.8rem;
+            opacity: 0.5;
+            margin-bottom: 0.8rem;
+        }
+        .book-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .book-price {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+        .btn-cart {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: var(--cream);
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .btn-cart:hover { background: var(--coral); }
+
+        /* CATEGORIES */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1rem;
+            margin-top: 2.5rem;
+        }
+
+        .cat-card {
+            border-radius: 16px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            border: 1.5px solid transparent;
+        }
+        .cat-card:hover { transform: translateY(-4px); }
+
+        .cat1 { background: #fff0f0; border-color: #ffcdd2; }
+        .cat2 { background: #f0fff9; border-color: #b2dfdb; }
+        .cat3 { background: #f5f0ff; border-color: #d1c4e9; }
+        .cat4 { background: #fffbf0; border-color: #ffe082; }
+        .cat5 { background: #f0f8ff; border-color: #b3d9ff; }
+        .cat6 { background: #fff5f8; border-color: #f8bbd0; }
+
+        .cat-icon { font-size: 2rem; margin-bottom: 0.7rem; }
+        .cat-name { font-size: 0.85rem; font-weight: 600; color: var(--ink); }
+        .cat-count { font-size: 0.75rem; opacity: 0.5; margin-top: 0.2rem; }
+
+        /* MARQUEE */
+        .marquee-section {
+            padding: 2rem 0;
+            background: var(--coral);
+            overflow: hidden;
+            display: flex;
+        }
+        .marquee-track {
+            display: flex;
+            gap: 3rem;
+            animation: marquee 20s linear infinite;
+            white-space: nowrap;
+        }
+        .marquee-item {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-shrink: 0;
+        }
+        .marquee-dot { width: 6px; height: 6px; background: rgba(255,255,255,0.5); border-radius: 50%; }
+
+        @keyframes marquee {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+
+        /* WHY US */
+        .why-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        .why-card {
+            padding: 2.5rem;
+            border-radius: 20px;
+            border: 1.5px solid rgba(26,16,37,0.08);
+            transition: border-color 0.3s, transform 0.3s;
+        }
+        .why-card:hover { border-color: var(--coral); transform: translateY(-4px); }
+        .why-icon {
+            width: 52px; height: 52px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .icon1 { background: #fff0f0; }
+        .icon2 { background: #f0fff9; }
+        .icon3 { background: #f5f0ff; }
+        .why-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.7rem;
+        }
+        .why-desc { font-size: 0.9rem; opacity: 0.55; line-height: 1.7; }
+
+        /* NEWSLETTER */
+        .newsletter {
+            background: linear-gradient(135deg, var(--lavender) 0%, var(--teal) 100%);
+            border-radius: 32px;
+            margin: 0 3%;
+            padding: 5rem;
+            text-align: center;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        .newsletter::before {
+            content: '📚';
+            position: absolute;
+            font-size: 15rem;
+            opacity: 0.06;
+            top: -30px;
+            right: -20px;
+        }
+        .newsletter .section-tag { color: rgba(255,255,255,0.7); }
+        .newsletter .section-title { color: #fff; }
+        .newsletter .section-subtitle { color: rgba(255,255,255,0.75); margin: 0 auto 2rem; }
+
+        .newsletter-form {
+            display: flex;
+            gap: 0.8rem;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        .newsletter-form input {
+            flex: 1;
+            padding: 0.9rem 1.4rem;
+            border-radius: 100px;
+            border: none;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+        }
+        .newsletter-form input::placeholder { color: rgba(255,255,255,0.6); }
+        .newsletter-form button {
+            padding: 0.9rem 1.8rem;
+            border-radius: 100px;
+            background: #fff;
+            color: var(--ink);
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: transform 0.2s;
+        }
+        .newsletter-form button:hover { transform: scale(1.05); }
+
+        /* FOOTER */
+        footer {
+            padding: 4rem 5% 2rem;
+            border-top: 1px solid rgba(26,16,37,0.08);
+            margin-top: 6rem;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+        .footer-brand .logo { font-size: 1.4rem; display: block; margin-bottom: 1rem; }
+        .footer-desc { font-size: 0.875rem; opacity: 0.5; line-height: 1.7; }
+        .footer-heading {
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.2rem;
+        }
+        .footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+        .footer-links a { text-decoration: none; font-size: 0.875rem; opacity: 0.5; color: var(--ink); transition: opacity 0.2s; }
+        .footer-links a:hover { opacity: 1; }
+        .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 2rem; border-top: 1px solid rgba(26,16,37,0.08); font-size: 0.8rem; opacity: 0.4; }
+
+        /* Animations */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+
+    <!-- NAV -->
+    <nav>
+        <a href="#" class="logo">Kitab<span>Evi</span></a>
+        <ul class="nav-links">
+            <li><a href="#">Ana Səhifə</a></li>
+            <li><a href="books.html">Kitablar</a></li>
+            <li><a href="#">Haqqımızda</a></li>
+            <li><a href="#">Əlaqə</a></li>
+        </ul>
+        <div class="nav-actions">
+            <a href="auth.html" class="btn-nav btn-outline">Giriş</a>
+            <a href="auth.html" class="btn-nav btn-filled">Qeydiyyat</a>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-bg-blob blob1"></div>
+        <div class="hero-bg-blob blob2"></div>
+        <div class="hero-bg-blob blob3"></div>
+
+        <div class="hero-text">
+            <div class="hero-tag">Azərbaycanın ən böyük kitab mağazası</div>
+            <h1>Hər kitabda<br>bir <em>sehrli</em><br>dünya var</h1>
+            <p class="hero-desc">Minlərlə kitab arasında özünüzə ən uyğun olanı tapın. Ən yeni, ən çox satılan, ən sevilən əsərləri bir yerdə kəşf edin.</p>
+            <div class="hero-cta">
+                <a href="books.html" class="btn-big btn-primary">Kitabları Kəşf Et →</a>
+                <a href="auth.html" class="btn-big btn-secondary-big">Üzv ol, pulsuz</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <div class="stat-num">12K+</div>
+                    <div class="stat-label">Kitab</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num">8K+</div>
+                    <div class="stat-label">Oxucu</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num">500+</div>
+                    <div class="stat-label">Müəllif</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-visual">
+            <div class="books-stack">
+                <div class="book-card book1">
+                    <span class="cover-icon">🌊</span>
+                    <div class="book-title-mock">Dənizin Sirri</div>
+                    <div class="book-author-mock">Anar Rəsulzadə</div>
+                    <span class="book-price-mock">12.99 ₼</span>
+                </div>
+                <div class="book-card book2">
+                    <span class="cover-icon">🌌</span>
+                    <div class="book-title-mock">Ulduzlar Altında</div>
+                    <div class="book-author-mock">Leyla Əliyeva</div>
+                    <span class="book-price-mock">9.99 ₼</span>
+                </div>
+                <div class="book-card book3">
+                    <span class="cover-icon">🌺</span>
+                    <div class="book-title-mock">Baharın Son Günü</div>
+                    <div class="book-author-mock">Nigar Həsənova</div>
+                    <span class="book-price-mock">14.99 ₼</span>
+                </div>
+                <div class="floating-badge badge1">⭐ 4.9 — Ən çox satılan</div>
+                <div class="floating-badge badge2">🚚 Pulsuz çatdırılma</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MARQUEE -->
+    <div class="marquee-section">
+        <div class="marquee-track">
+            <span class="marquee-item">Roman <span class="marquee-dot"></span></span>
+            <span class="marquee-item">Elmi Fantastika <span class="marquee-dot"></span></span>
+            <span class="marquee-item">Tarix <span class="marquee-dot"></span></span>
+            <span class="marquee-item">Psixologiya <span class="marquee-dot"></span></span>
+            <span class="marquee-item">Şeir <span class="marquee-dot"></span></span>
+            <span class="marquee-item">Uşaq Kitabları <span class="marquee-dot"></span></span>
+            <span class="marquee-item">İş Dünyası <span class="marquee-dot"></span></span>
+            <span class="marquee-item">Fəlsəfə <span class="marquee-dot"></span></span>
+            <span class="marquee-item">Roman <span class="marquee-dot"></span></span>
+            <span class="marquee-item">Elmi Fantastika <span class="marquee-dot"></span></span>
+            <span class="marquee-item">Tarix <span class="marquee-dot"></span></span>
+            <span class="marquee-item">Psixologiya <span class="marquee-dot"></span></span>
+            <span class="marquee-item">Şeir <span class="marquee-dot"></span></span>
+            <span class="marquee-item">Uşaq Kitabları <span class="marquee-dot"></span></span>
+            <span class="marquee-item">İş Dünyası <span class="marquee-dot"></span></span>
+            <span class="marquee-item">Fəlsəfə <span class="marquee-dot"></span></span>
+        </div>
+    </div>
+
+    <!-- CATEGORIES -->
+    <section>
+        <div class="reveal">
+            <div class="section-tag">Kateqoriyalar</div>
+            <div class="section-title">Zövqünüzə uyğun<br>janr tapın</div>
+        </div>
+        <div class="categories-grid reveal">
+            <div class="cat-card cat1"><div class="cat-icon">📖</div><div class="cat-name">Roman</div><div class="cat-count">1.2K kitab</div></div>
+            <div class="cat-card cat2"><div class="cat-icon">🚀</div><div class="cat-name">Elmi Fantastika</div><div class="cat-count">340 kitab</div></div>
+            <div class="cat-card cat3"><div class="cat-icon">🧠</div><div class="cat-name">Psixologiya</div><div class="cat-count">520 kitab</div></div>
+            <div class="cat-card cat4"><div class="cat-icon">📜</div><div class="cat-name">Tarix</div><div class="cat-count">890 kitab</div></div>
+            <div class="cat-card cat5"><div class="cat-icon">💼</div><div class="cat-name">İş Dünyası</div><div class="cat-count">430 kitab</div></div>
+            <div class="cat-card cat6"><div class="cat-icon">🌸</div><div class="cat-name">Şeir</div><div class="cat-count">270 kitab</div></div>
+        </div>
+    </section>
+
+    <!-- FEATURED BOOKS -->
+    <section class="featured reveal">
+        <div class="featured-header">
+            <div>
+                <div class="section-tag">Seçilmiş kitablar</div>
+                <div class="section-title">Bu həftənin<br>bestseller-ləri</div>
+            </div>
+            <a href="books.html" class="btn-nav btn-outline" style="color:#fff; border-color:rgba(255,255,255,0.3)">Hamısını gör →</a>
+        </div>
+        <div class="books-grid">
+            <div class="book-item">
+                <div class="book-cover cover1"><span class="cover-icon">🌊</span><span class="book-cover-badge">Bestseller</span></div>
+                <div class="book-info">
+                    <div class="book-name">Dənizin Sirri</div>
+                    <div class="book-author">Anar Rəsulzadə</div>
+                    <div class="book-footer"><span class="book-price">12.99 ₼</span><button class="btn-cart">+</button></div>
+                </div>
+            </div>
+            <div class="book-item">
+                <div class="book-cover cover2"><span class="cover-icon">🌌</span><span class="book-cover-badge">Yeni</span></div>
+                <div class="book-info">
+                    <div class="book-name">Ulduzlar Altında</div>
+                    <div class="book-author">Leyla Əliyeva</div>
+                    <div class="book-footer"><span class="book-price">9.99 ₼</span><button class="btn-cart">+</button></div>
+                </div>
+            </div>
+            <div class="book-item">
+                <div class="book-cover cover3"><span class="cover-icon">🌺</span><span class="book-cover-badge">Tövsiyə</span></div>
+                <div class="book-info">
+                    <div class="book-name">Baharın Son Günü</div>
+                    <div class="book-author">Nigar Həsənova</div>
+                    <div class="book-footer"><span class="book-price">14.99 ₼</span><button class="btn-cart">+</button></div>
+                </div>
+            </div>
+            <div class="book-item">
+                <div class="book-cover cover4"><span class="cover-icon">🔥</span><span class="book-cover-badge">Endirim</span></div>
+                <div class="book-info">
+                    <div class="book-name">Od və Külək</div>
+                    <div class="book-author">Kamran Əlizadə</div>
+                    <div class="book-footer"><span class="book-price">7.99 ₼</span><button class="btn-cart">+</button></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WHY US -->
+    <section>
+        <div class="reveal" style="text-align:center; margin-bottom: 1rem;">
+            <div class="section-tag" style="display:inline-block">Niyə biz?</div>
+            <div class="section-title">KitabEvi fərqi</div>
+            <p class="section-subtitle" style="margin: 0 auto;">Oxucularımıza ən yaxşı təcrübəni təqdim etmək üçün hər gün çalışırıq.</p>
+        </div>
+        <div class="why-grid reveal">
+            <div class="why-card">
+                <div class="why-icon icon1">🚀</div>
+                <div class="why-title">Sürətli Çatdırılma</div>
+                <p class="why-desc">Bakı daxilində 24 saat, regionlara 3 iş günü ərzində çatdırılma. 30 ₼ üzərindəki sifarişlər pulsuz!</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon icon2">✅</div>
+                <div class="why-title">Orijinal Kitablar</div>
+                <p class="why-desc">Bütün kitablar rəsmi nəşriyyatlardan birbaşa təmin edilir. %100 orijinallıq zəmanəti veririk.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon icon3">💬</div>
+                <div class="why-title">7/24 Dəstək</div>
+                <p class="why-desc">Hər hansı sualınız üçün dəstək komandasımız həmişə hazırdır. Chat, zəng və email ilə əlaqə.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEWSLETTER -->
+    <section class="newsletter reveal">
+        <div class="section-tag">Xəbərlər</div>
+        <div class="section-title">Yeni kitablardan<br>ilk siz xəbər tutun</div>
+        <p class="section-subtitle">Həftəlik bülleteninə abunə olun — yeni gələnlər, endirimlər və tövsiyələr birbaşa e-poçtunuza gəlsin.</p>
+        <div class="newsletter-form">
+            <input type="email" placeholder="E-poçt ünvanınız">
+            <button>Abunə ol</button>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="#" class="logo">Kitab<span style="color:var(--coral)">Evi</span></a>
+                <p class="footer-desc">Azərbaycanın ən böyük onlayn kitab mağazası. Hər kitab bir macəra, hər səhifə yeni bir dünya.</p>
+            </div>
+            <div>
+                <div class="footer-heading">Sayt</div>
+                <ul class="footer-links">
+                    <li><a href="#">Ana Səhifə</a></li>
+                    <li><a href="books.html">Kitablar</a></li>
+                    <li><a href="#">Kateqoriyalar</a></li>
+                    <li><a href="#">Haqqımızda</a></li>
+                </ul>
+            </div>
+            <div>
+                <div class="footer-heading">Hesab</div>
+                <ul class="footer-links">
+                    <li><a href="auth.html">Giriş</a></li>
+                    <li><a href="auth.html">Qeydiyyat</a></li>
+                    <li><a href="#">Profil</a></li>
+                    <li><a href="#">Sifarişlərim</a></li>
+                </ul>
+            </div>
+            <div>
+                <div class="footer-heading">Kömək</div>
+                <ul class="footer-links">
+                    <li><a href="#">Çatdırılma</a></li>
+                    <li><a href="#">Qaytarma</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Əlaqə</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2025 KitabEvi. Bütün hüquqlar qorunur.</span>
+            <span>Azərbaycan 🇦🇿</span>
+        </div>
+    </footer>
+
+    <script>
+        // Cursor
+        const cursor = document.getElementById('cursor');
+        const ring = document.getElementById('cursorRing');
+        document.addEventListener('mousemove', e => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            setTimeout(() => {
+                ring.style.left = e.clientX + 'px';
+                ring.style.top = e.clientY + 'px';
+            }, 80);
+        });
+
+        // Scroll reveal
+        const reveals = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.1 });
+        reveals.forEach(r => observer.observe(r));
+    </script>
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user) {
+            document.querySelector('.nav-actions').innerHTML = `
+            <span style="font-size:0.9rem; opacity:0.7;">👤 ${user.username}</span>
+            <button class="btn-nav btn-outline" onclick="logout()">Çıxış</button>
+        `;
+        }
+        function logout() {
+            localStorage.removeItem('user');
+            location.reload();
+        }
+    </script>
+</body>
+</html>

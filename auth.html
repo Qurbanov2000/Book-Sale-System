@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş / Qeydiyyat — KitabEvi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #1a1025;
+            --cream: #fdf8f0;
+            --gold: #f0a500;
+            --coral: #ff6b6b;
+            --teal: #00b8a9;
+            --lavender: #c77dff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            cursor: none;
+            overflow: hidden;
+        }
+
+        .cursor {
+            width: 14px; height: 14px;
+            background: var(--coral);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: multiply;
+        }
+        .cursor-ring {
+            width: 40px; height: 40px;
+            border: 2px solid var(--ink);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: all 0.15s ease;
+        }
+
+        /* LEFT PANEL */
+        .left-panel {
+            background: var(--ink);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 3rem;
+            overflow: hidden;
+        }
+
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            width: 600px; height: 600px;
+            background: var(--lavender);
+            border-radius: 50%;
+            top: -200px; left: -200px;
+            opacity: 0.15;
+            filter: blur(60px);
+            animation: blobPulse 8s ease-in-out infinite;
+        }
+        .left-panel::after {
+            content: '';
+            position: absolute;
+            width: 400px; height: 400px;
+            background: var(--coral);
+            border-radius: 50%;
+            bottom: -100px; right: -100px;
+            opacity: 0.12;
+            filter: blur(50px);
+            animation: blobPulse 10s ease-in-out infinite reverse;
+        }
+
+        @keyframes blobPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .panel-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--cream);
+            text-decoration: none;
+            position: relative;
+            z-index: 2;
+        }
+        .panel-logo span { color: var(--coral); }
+
+        .panel-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .panel-quote {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.8rem, 2.8vw, 2.8rem);
+            font-weight: 900;
+            color: var(--cream);
+            line-height: 1.15;
+            letter-spacing: -1px;
+            margin-bottom: 1.5rem;
+        }
+        .panel-quote em {
+            color: var(--gold);
+            font-style: italic;
+        }
+
+        .panel-desc {
+            font-size: 0.95rem;
+            color: rgba(253,248,240,0.5);
+            line-height: 1.7;
+            max-width: 380px;
+            margin-bottom: 2.5rem;
+        }
+
+        .panel-books {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .mini-book {
+            width: 70px;
+            height: 100px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+            cursor: default;
+        }
+        .mini-book:hover { transform: translateY(-8px) rotate(-3deg); }
+        .mb1 { background: linear-gradient(135deg, #ff6b6b, #ffa07a); transform: rotate(-4deg); }
+        .mb2 { background: linear-gradient(135deg, #00b8a9, #48dbca); transform: rotate(2deg); }
+        .mb3 { background: linear-gradient(135deg, #c77dff, #9d4edd); transform: rotate(-2deg); }
+        .mb4 { background: linear-gradient(135deg, #f0a500, #ffd166); transform: rotate(5deg); }
+
+        .panel-stats {
+            display: flex;
+            gap: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+        .p-stat-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--cream);
+        }
+        .p-stat-label { font-size: 0.75rem; color: rgba(253,248,240,0.4); margin-top: 0.1rem; }
+
+        /* RIGHT PANEL */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 3rem 4rem;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            text-decoration: none;
+            color: var(--ink);
+            font-size: 0.85rem;
+            opacity: 0.5;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: opacity 0.2s;
+        }
+        .back-link:hover { opacity: 1; }
+
+        .form-header { margin-bottom: 2.5rem; }
+        .form-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+        }
+        .form-subtitle { font-size: 0.9rem; opacity: 0.45; }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            gap: 0;
+            background: rgba(26,16,37,0.05);
+            border-radius: 14px;
+            padding: 5px;
+            margin-bottom: 2.5rem;
+            width: fit-content;
+        }
+        .tab-btn {
+            padding: 0.6rem 1.8rem;
+            border-radius: 10px;
+            border: none;
+            background: transparent;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            color: var(--ink);
+            opacity: 0.5;
+            transition: all 0.25s;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .tab-btn.active {
+            background: var(--ink);
+            color: var(--cream);
+            opacity: 1;
+        }
+
+        /* FORMS */
+        .form-panel { display: none; animation: fadeUp 0.35s ease; }
+        .form-panel.active { display: block; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group { margin-bottom: 1.2rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+        label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            opacity: 0.6;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.03em;
+        }
+
+        .input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            font-size: 1rem;
+            opacity: 0.35;
+            pointer-events: none;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 0.85rem 1rem 0.85rem 2.8rem;
+            border: 1.5px solid rgba(26,16,37,0.12);
+            border-radius: 14px;
+            font-size: 0.92rem;
+            color: var(--ink);
+            background: #fff;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: 'DM Sans', sans-serif;
+        }
+        input:focus {
+            border-color: var(--coral);
+            box-shadow: 0 0 0 4px rgba(255,107,107,0.1);
+        }
+        input.error { border-color: #ff4444; box-shadow: 0 0 0 4px rgba(255,68,68,0.1); }
+        input.success { border-color: var(--teal); box-shadow: 0 0 0 4px rgba(0,184,169,0.1); }
+
+        .toggle-pass {
+            position: absolute;
+            right: 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            opacity: 0.4;
+            transition: opacity 0.2s;
+        }
+        .toggle-pass:hover { opacity: 0.8; }
+
+        .field-error {
+            font-size: 0.75rem;
+            color: #ff4444;
+            margin-top: 0.4rem;
+            display: none;
+        }
+        .field-error.show { display: block; }
+
+        /* Password strength */
+        .strength-bar {
+            height: 4px;
+            background: rgba(26,16,37,0.08);
+            border-radius: 2px;
+            margin-top: 0.6rem;
+            overflow: hidden;
+            display: none;
+        }
+        .strength-bar.show { display: block; }
+        .strength-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.4s ease, background 0.4s;
+        }
+        .strength-label { font-size: 0.72rem; margin-top: 0.3rem; opacity: 0.5; display: none; }
+        .strength-label.show { display: block; }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .checkbox-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        .checkbox-wrap input[type="checkbox"] {
+            width: 16px; height: 16px;
+            padding: 0;
+            accent-color: var(--coral);
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .checkbox-wrap span { font-size: 0.83rem; opacity: 0.6; }
+
+        .forgot-link {
+            font-size: 0.83rem;
+            color: var(--coral);
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .forgot-link:hover { opacity: 1; }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--ink);
+            color: var(--cream);
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: 'DM Sans', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .submit-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--coral);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+        .submit-btn:hover::after { transform: scaleX(1); }
+        .submit-btn span { position: relative; z-index: 1; }
+        .submit-btn:active { transform: scale(0.98); }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            opacity: 0.3;
+            font-size: 0.8rem;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--ink);
+        }
+
+        .social-btns { display: flex; gap: 0.8rem; }
+        .social-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1.5px solid rgba(26,16,37,0.12);
+            border-radius: 12px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--ink);
+        }
+        .social-btn:hover { border-color: var(--ink); transform: translateY(-2px); }
+
+        .switch-text {
+            text-align: center;
+            font-size: 0.85rem;
+            opacity: 0.5;
+            margin-top: 1.5rem;
+        }
+        .switch-text a {
+            color: var(--coral);
+            text-decoration: none;
+            font-weight: 600;
+            opacity: 1;
+        }
+
+        /* Success overlay */
+        .success-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(253,248,240,0.97);
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .success-overlay.show { display: flex; animation: fadeUp 0.4s ease; }
+        .success-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            animation: bounceIn 0.6s ease;
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0); }
+            60% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .success-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 0.7rem;
+        }
+        .success-desc { opacity: 0.5; margin-bottom: 2rem; }
+        .success-btn {
+            padding: 0.9rem 2.5rem;
+            background: var(--coral);
+            color: #fff;
+            border: none;
+            border-radius: 100px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+        <a href="index.html" class="panel-logo">Kitab<span>Evi</span></a>
+
+        <div class="panel-content">
+            <div class="panel-books">
+                <div class="mini-book mb1">🌊</div>
+                <div class="mini-book mb2">🌌</div>
+                <div class="mini-book mb3">🌺</div>
+                <div class="mini-book mb4">🔥</div>
+            </div>
+            <h2 class="panel-quote">Hər kitabda<br>bir <em>sehrli</em><br>dünya var</h2>
+            <p class="panel-desc">KitabEvi ailəsinə qoşulun. Minlərlə kitab, xüsusi endirimlər və hər həftə yeni tövsiyələr sizi gözləyir.</p>
+        </div>
+
+        <div class="panel-stats">
+            <div>
+                <div class="p-stat-num">12K+</div>
+                <div class="p-stat-label">Kitab</div>
+            </div>
+            <div>
+                <div class="p-stat-num">8K+</div>
+                <div class="p-stat-label">Oxucu</div>
+            </div>
+            <div>
+                <div class="p-stat-num">500+</div>
+                <div class="p-stat-label">Müəllif</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+        <a href="index.html" class="back-link">← Geri qayıt</a>
+
+        <div class="form-header">
+            <h1 class="form-title" id="formTitle">Xoş gəldiniz</h1>
+            <p class="form-subtitle" id="formSubtitle">Hesabınıza daxil olun</p>
+        </div>
+
+        <!-- TABS -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('login')">Giriş</button>
+            <button class="tab-btn" onclick="switchTab('register')">Qeydiyyat</button>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <div class="form-panel active" id="loginPanel">
+            <div class="form-group">
+                <label>E-poçt</label>
+                <div class="input-wrap">
+                    <span class="input-icon">✉️</span>
+                    <input type="email" id="loginEmail" placeholder="ad@email.com" oninput="clearError('loginEmail')">
+                </div>
+                <div class="field-error" id="loginEmailErr">Düzgün e-poçt daxil edin</div>
+            </div>
+
+            <div class="form-group">
+                <label>Şifrə</label>
+                <div class="input-wrap">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="loginPass" placeholder="Şifrəniz" oninput="clearError('loginPass')">
+                    <button class="toggle-pass" type="button" onclick="togglePassword('loginPass', this)">👁️</button>
+                </div>
+                <div class="field-error" id="loginPassErr">Şifrə daxil edin</div>
+            </div>
+
+            <div class="form-options">
+                <label class="checkbox-wrap">
+                    <input type="checkbox" id="remember">
+                    <span>Məni xatırla</span>
+                </label>
+                <a href="#" class="forgot-link">Şifrəni unutdum?</a>
+            </div>
+
+            <button class="submit-btn" onclick="handleLogin()">
+                <span>Daxil ol →</span>
+            </button>
+
+            <div class="divider">və ya</div>
+
+            <div class="social-btns">
+                <button class="social-btn">🌐 Google</button>
+                <button class="social-btn">📘 Facebook</button>
+            </div>
+
+            <div class="switch-text">
+                Hesabınız yoxdur? <a href="#" onclick="switchTab('register')">Qeydiyyatdan keçin</a>
+            </div>
+        </div>
+
+        <!-- REGISTER FORM -->
+        <div class="form-panel" id="registerPanel">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Ad</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="regFirst" placeholder="Adınız" oninput="clearError('regFirst')">
+                    </div>
+                    <div class="field-error" id="regFirstErr">Ad daxil edin</div>
+                </div>
+                <div class="form-group">
+                    <label>Soyad</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="regLast" placeholder="Soyadınız" oninput="clearError('regLast')">
+                    </div>
+                    <div class="field-error" id="regLastErr">Soyad daxil edin</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>İstifadəçi adı</label>
+                <div class="input-wrap">
+                    <span class="input-icon">🏷️</span>
+                    <input type="text" id="regUsername" placeholder="istifadeci_adi" oninput="clearError('regUsername')">
+                </div>
+                <div class="field-error" id="regUsernameErr">İstifadəçi adı daxil edin</div>
+            </div>
+
+            <div class="form-group">
+                <label>E-poçt</label>
+                <div class="input-wrap">
+                    <span class="input-icon">✉️</span>
+                    <input type="email" id="regEmail" placeholder="ad@email.com" oninput="clearError('regEmail')">
+                </div>
+                <div class="field-error" id="regEmailErr">Düzgün e-poçt daxil edin</div>
+            </div>
+
+            <div class="form-group">
+                <label>Şifrə</label>
+                <div class="input-wrap">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="regPass" placeholder="Ən azı 6 simvol" oninput="checkStrength(); clearError('regPass')">
+                    <button class="toggle-pass" type="button" onclick="togglePassword('regPass', this)">👁️</button>
+                </div>
+                <div class="strength-bar" id="strengthBar"><div class="strength-fill" id="strengthFill"></div></div>
+                <div class="strength-label" id="strengthLabel"></div>
+                <div class="field-error" id="regPassErr">Ən azı 6 simvol daxil edin</div>
+            </div>
+
+            <div class="form-group">
+                <label>Şifrəni təsdiqlə</label>
+                <div class="input-wrap">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="regPass2" placeholder="Şifrəni təkrar daxil edin" oninput="clearError('regPass2')">
+                    <button class="toggle-pass" type="button" onclick="togglePassword('regPass2', this)">👁️</button>
+                </div>
+                <div class="field-error" id="regPass2Err">Şifrələr uyğun gəlmir</div>
+            </div>
+
+            <div class="form-options" style="margin-bottom:1.5rem;">
+                <label class="checkbox-wrap">
+                    <input type="checkbox" id="terms">
+                    <span>Şərtləri qəbul edirəm</span>
+                </label>
+            </div>
+
+            <button class="submit-btn" onclick="handleRegister()">
+                <span>Qeydiyyatdan keç →</span>
+            </button>
+
+            <div class="divider">və ya</div>
+
+            <div class="social-btns">
+                <button class="social-btn">🌐 Google</button>
+                <button class="social-btn">📘 Facebook</button>
+            </div>
+
+            <div class="switch-text">
+                Artıq hesabınız var? <a href="#" onclick="switchTab('login')">Daxil olun</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUCCESS OVERLAY -->
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-icon" id="successIcon">🎉</div>
+        <h2 class="success-title" id="successTitle">Uğurla daxil oldunuz!</h2>
+        <p class="success-desc" id="successDesc">KitabEvi dünyasına xoş gəldiniz</p>
+        <a href="index.html" class="success-btn">Ana Səhifəyə Get →</a>
+    </div>
+
+    <script>
+        // Cursor
+        const cursor = document.getElementById('cursor');
+        const ring = document.getElementById('cursorRing');
+        document.addEventListener('mousemove', e => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            setTimeout(() => {
+                ring.style.left = e.clientX + 'px';
+                ring.style.top = e.clientY + 'px';
+            }, 80);
+        });
+
+        // Tab switch
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach((b, i) => {
+                b.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'));
+            });
+            document.getElementById('loginPanel').classList.toggle('active', tab === 'login');
+            document.getElementById('registerPanel').classList.toggle('active', tab === 'register');
+
+            if (tab === 'login') {
+                document.getElementById('formTitle').textContent = 'Xoş gəldiniz';
+                document.getElementById('formSubtitle').textContent = 'Hesabınıza daxil olun';
+            } else {
+                document.getElementById('formTitle').textContent = 'Hesab yaradın';
+                document.getElementById('formSubtitle').textContent = 'Pulsuz qeydiyyatdan keçin';
+            }
+        }
+
+        // Toggle password
+        function togglePassword(id, btn) {
+            const input = document.getElementById(id);
+            if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+            else { input.type = 'password'; btn.textContent = '👁️'; }
+        }
+
+        // Clear error
+        function clearError(id) {
+            const input = document.getElementById(id);
+            input.classList.remove('error');
+            const err = document.getElementById(id + 'Err');
+            if (err) err.classList.remove('show');
+        }
+
+        function showError(id, msg) {
+            const input = document.getElementById(id);
+            input.classList.add('error');
+            const err = document.getElementById(id + 'Err');
+            if (err) { if (msg) err.textContent = msg; err.classList.add('show'); }
+        }
+
+        // Password strength
+        function checkStrength() {
+            const pass = document.getElementById('regPass').value;
+            const bar = document.getElementById('strengthBar');
+            const fill = document.getElementById('strengthFill');
+            const label = document.getElementById('strengthLabel');
+
+            if (!pass) { bar.classList.remove('show'); label.classList.remove('show'); return; }
+            bar.classList.add('show'); label.classList.add('show');
+
+            let score = 0;
+            if (pass.length >= 6) score++;
+            if (pass.length >= 10) score++;
+            if (/[A-Z]/.test(pass)) score++;
+            if (/[0-9]/.test(pass)) score++;
+            if (/[^A-Za-z0-9]/.test(pass)) score++;
+
+            const levels = [
+                { w: '20%', c: '#ff4444', t: 'Çox zəif' },
+                { w: '40%', c: '#ff8c00', t: 'Zəif' },
+                { w: '60%', c: '#f0a500', t: 'Orta' },
+                { w: '80%', c: '#00b8a9', t: 'Güclü' },
+                { w: '100%', c: '#06d6a0', t: 'Çox güclü' },
+            ];
+            const lvl = levels[Math.min(score - 1, 4)] || levels[0];
+            fill.style.width = lvl.w;
+            fill.style.background = lvl.c;
+            label.textContent = lvl.t;
+            label.style.color = lvl.c;
+        }
+
+        // Login handler
+        async function handleLogin() {
+            let valid = true;
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPass').value;
+
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showError('loginEmail'); valid = false;
+            }
+            if (!pass) { showError('loginPass'); valid = false; }
+            if (!valid) return;
+
+            const btn = document.querySelector('#loginPanel .submit-btn span');
+            btn.textContent = 'Yüklənir...';
+
+            try {
+                const res = await fetch('http://localhost:8080/api/users/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password: pass })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    btn.textContent = 'Daxil ol →';
+                    showError('loginPass', data.message || 'Şifrə və ya email yanlışdır');
+                    return;
+                }
+
+                // İstifadəçi məlumatlarını saxla
+                localStorage.setItem('user', JSON.stringify({
+                    id: data.id,
+                    username: data.username,
+                    email: data.email
+                }));
+
+                showSuccess('Uğurla daxil oldunuz! 👋', `Xoş gəldiniz, ${data.username}!`, '👋');
+
+            } catch (err) {
+                btn.textContent = 'Daxil ol →';
+                showError('loginEmail', 'Server ilə əlaqə qurulamadı');
+            }
+        }
+
+        // Register handler
+        async function handleRegister() {
+            let valid = true;
+            const first = document.getElementById('regFirst').value.trim();
+            const last = document.getElementById('regLast').value.trim();
+            const username = document.getElementById('regUsername').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const pass = document.getElementById('regPass').value;
+            const pass2 = document.getElementById('regPass2').value;
+            const terms = document.getElementById('terms').checked;
+
+            if (!first) { showError('regFirst'); valid = false; }
+            if (!last) { showError('regLast'); valid = false; }
+            if (!username) { showError('regUsername'); valid = false; }
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showError('regEmail'); valid = false;
+            }
+            if (!pass || pass.length < 6) { showError('regPass'); valid = false; }
+            if (pass !== pass2) { showError('regPass2', 'Şifrələr uyğun gəlmir'); valid = false; }
+            if (!terms) { alert('Şərtləri qəbul edin'); valid = false; }
+            if (!valid) return;
+
+            const btn = document.querySelector('#registerPanel .submit-btn span');
+            btn.textContent = 'Qeydiyyat olunur...';
+
+            try {
+                const res = await fetch('http://localhost:8080/api/users/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password: pass })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    btn.textContent = 'Qeydiyyatdan keç →';
+                    if (data.message?.includes('email')) {
+                        showError('regEmail', data.message);
+                    } else if (data.message?.includes('username')) {
+                        showError('regUsername', data.message);
+                    } else {
+                        showError('regEmail', data.message || 'Xəta baş verdi');
+                    }
+                    return;
+                }
+
+                localStorage.setItem('user', JSON.stringify({
+                    id: data.id,
+                    username: data.username,
+                    email: data.email
+                }));
+
+                showSuccess('Qeydiyyat tamamlandı! 🎉', `Xoş gəldiniz, ${data.username}!`, '🎉');
+
+            } catch (err) {
+                btn.textContent = 'Qeydiyyatdan keç →';
+                showError('regEmail', 'Server ilə əlaqə qurulamadı');
+            }
+        }
+
+        function showSuccess(title, desc, icon) {
+            document.getElementById('successTitle').textContent = title;
+            document.getElementById('successDesc').textContent = desc;
+            document.getElementById('successIcon').textContent = icon;
+            document.getElementById('successOverlay').classList.add('show');
+        }
+
+
+    </script>
+</body>
+</html>
