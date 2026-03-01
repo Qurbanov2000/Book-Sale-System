@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import booksale.repo.BookRepo;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +24,14 @@ public class BookService {
         Book book = mapToEntity(request);
         Book saved = bookRepo.save(book);
         return mapToResponse(saved);
+    }
+
+    public List<BookResponse> searchBooks(String keyword, BigDecimal minPrice,
+                                          BigDecimal maxPrice, Boolean inStock) {
+        return bookRepo.searchBooks(keyword, minPrice, maxPrice, inStock)
+                .stream()
+                .map(book -> mapToResponse(book))
+                .collect(Collectors.toList());
     }
 
     public BookResponse getBookById(Long id) {

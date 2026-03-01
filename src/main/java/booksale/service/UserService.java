@@ -7,9 +7,11 @@ import booksale.dto.response.UserResponse;
 import booksale.entity.User;
 import booksale.exceptions.DuplicateResourceException;
 import booksale.exceptions.ResourceNotFoundException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import booksale.repo.UserRepo;
+import booksale.security.JwtUtil;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +21,8 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepo userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     public UserResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -31,53 +35,48 @@ public class UserService {
         User user = new User();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        User saved = userRepository.save(user);
-        return mapToResponse(userRepository.save(user));
+        userRepository.save(user);
+        User saved = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Xəta baş verdi"));
+        return mapToResponse(saved);
     }
 
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("Bu email ilə istifadəçi tapılmadı"));
 
-        if (!user.getPassword().equals(request.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Şifrə yanlışdır");
         }
 
-        return new LoginResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                "Uğurla daxil oldunuz"
-        );
+        String token = jwtUtil.generateToken(user.getEmail());
+
+        return new LoginResponse(user.getId(), user.getUsername(), user.getEmail(), token);
     }
 
     public UserResponse getUserById(Long id) {
-        User user = (User) userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("İstifadəçi tapılmadı"));
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("İstifadəçi tapılmadı"));
         return mapToResponse(user);
     }
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll()
                 .stream()
-                .map( user -> mapToResponse((User) user))
+                .map(user -> mapToResponse(user))
                 .collect(Collectors.toList());
     }
 
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new RuntimeException("İstifadəçi tapılmadı");
+            throw new ResourceNotFoundException("İstifadəçi tapılmadı");
         }
         userRepository.deleteById(id);
     }
 
     private UserResponse mapToResponse(User user) {
-        return new UserResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail()
-        );
+        return new UserResponse(user.getId(), user.getUsername(), user.getEmail());
     }
 }
