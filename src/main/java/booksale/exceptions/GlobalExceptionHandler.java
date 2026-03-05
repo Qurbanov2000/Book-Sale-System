@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "booksale.controller")
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
